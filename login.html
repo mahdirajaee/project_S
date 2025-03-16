@@ -7,121 +7,294 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/animations.css">
-    <link rel="stylesheet" href="assets/css/login.css">
+    <style>
+        /* Basic login styles */
+        .login-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(87deg, #172b4d 0, #1a174d 100%);
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(50,50,93,.1), 0 5px 15px rgba(0,0,0,.07);
+            overflow: hidden;
+        }
+        
+        .login-header {
+            padding: 30px 20px;
+            text-align: center;
+            background-color: rgba(0,0,0,0.02);
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .login-logo {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #5e72e4;
+        }
+        
+        .login-form {
+            padding: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #5e72e4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-login:hover {
+            background: #324cdd;
+        }
+        
+        .error-message {
+            color: #f5365c;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .demo-creds {
+            margin-top: 20px;
+            background-color: #f8f9fe;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .demo-creds p {
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+        
+        .cred-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .copy-btn {
+            background: none;
+            border: none;
+            color: #5e72e4;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body class="login-page">
     <div class="login-container">
-        <div class="login-wrapper">
-            <div class="login-card animate-fade-in">
-                <div class="login-header">
-                    <div class="logo-container">
-                        <div class="logo-icon">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                    </div>
-                    <h1>Welcome Back</h1>
-                    <p class="subtitle">Login to your dashboard account</p>
+        <div class="login-card animate-fade-in">
+            <div class="login-header">
+                <div class="login-logo">
+                    <i class="fas fa-shield-alt"></i>
                 </div>
-                <div class="login-form">
-                    <form id="login-form">
-                        <div class="input-group">
-                            <label for="username">Username or Email</label>
-                            <div class="input-with-icon">
-                                <i class="fas fa-user"></i>
-                                <input type="text" id="username" placeholder="Enter your username or email" autocomplete="username">
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <div class="password-label-group">
-                                <label for="password">Password</label>
-                                <a href="#" id="forgot-password-link" class="forgot-link">Forgot password?</a>
-                            </div>
-                            <div class="input-with-icon">
-                                <i class="fas fa-lock"></i>
-                                <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
-                                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
-                                    <i class="fas fa-eye-slash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="remember-me">
-                            <label for="remember-me">Remember me for 30 days</label>
-                        </div>
-                        <div class="error-message" id="login-error"></div>
-                        <button type="submit" id="login-btn" class="btn btn-primary btn-block">
-                            <span class="spinner" id="login-spinner"></span>
-                            <span class="btn-text">Login</span>
-                        </button>
-                    </form>
-                    
-                    <div class="login-divider">
-                        <span>Admin Demo</span>
-                    </div>
-                    
-                    <div class="demo-credentials">
-                        <p>Use these credentials to test the dashboard:</p>
-                        <div class="credential-box">
-                            <div class="credential-group">
-                                <span class="credential-label">Admin:</span>
-                                <span class="credential-value">admin / admin123</span>
-                                <button class="copy-btn" data-username="admin" data-password="admin123">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                            <div class="credential-group">
-                                <span class="credential-label">User:</span>
-                                <span class="credential-value">user / user123</span>
-                                <button class="copy-btn" data-username="user" data-password="user123">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h1>Dashboard Login</h1>
             </div>
-            
-            <div class="login-footer">
-                <p>&copy; 2025 Dashboard. All rights reserved.</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Password Reset Modal -->
-    <div class="modal" id="password-reset-modal">
-        <div class="modal-content animate-slide-in-up">
-            <div class="modal-header">
-                <h3><i class="fas fa-key"></i> Reset Password</h3>
-                <button class="close-btn" id="close-reset-modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>Enter your email address to receive a password reset link.</p>
+            <div class="login-form">
+                <div class="error-message" id="login-error"></div>
                 <div class="input-group">
-                    <label for="reset-email">Email</label>
-                    <div class="input-with-icon">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="reset-email" placeholder="Enter your email">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Enter your username">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <button type="button" id="login-btn" class="btn-login">Login</button>
+                
+                <div class="demo-creds">
+                    <p>Demo Credentials:</p>
+                    <div class="cred-row">
+                        <span><strong>Admin:</strong> admin / admin123</span>
+                        <button class="copy-btn" data-username="admin" data-password="admin123">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="cred-row">
+                        <span><strong>User:</strong> user / user123</span>
+                        <button class="copy-btn" data-username="user" data-password="user123">
+                            <i class="fas fa-copy"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="error-message" id="reset-error"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" id="cancel-reset">Cancel</button>
-                <button class="btn btn-primary" id="send-reset">
-                    <span class="spinner" id="reset-spinner"></span>
-                    <span>Send Reset Link</span>
-                </button>
             </div>
         </div>
     </div>
-    
-    <!-- Toast Notification -->
-    <div class="toast-container"></div>
-    
-    <!-- Scripts -->
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/ui.js"></script>
-    <script src="assets/js/auth.js"></script>
-    <script src="assets/js/login.js"></script>
+
+    <script>
+        // Simple login script
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize default users if they don't exist
+            if (!localStorage.getItem('users')) {
+                const defaultUsers = [
+                    {
+                        id: 1,
+                        username: 'admin',
+                        name: 'Admin User',
+                        email: 'admin@example.com',
+                        password: 'admin123',
+                        role: 'admin',
+                        status: 'active',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        username: 'user',
+                        name: 'Demo User',
+                        email: 'user@example.com',
+                        password: 'user123',
+                        role: 'user',
+                        status: 'active',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                localStorage.setItem('users', JSON.stringify(defaultUsers));
+            }
+
+            // Login function
+            function login(username, password) {
+                // Get users from localStorage
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                
+                // Find user
+                const user = users.find(u => 
+                    u.username === username && u.password === password
+                );
+                
+                if (user) {
+                    // Store authentication
+                    localStorage.setItem('auth_token', Date.now().toString());
+                    localStorage.setItem('user', JSON.stringify(user));
+                    
+                    // Store last login time
+                    localStorage.setItem(`last_login_${user.id}`, new Date().toISOString());
+                    
+                    // Redirect based on role
+                    if (user.role === 'admin') {
+                        window.location.href = '/dashboard/admin.html';
+                    } else {
+                        window.location.href = '/dashboard/user.html';
+                    }
+                } else {
+                    // Show error
+                    const errorElement = document.getElementById('login-error');
+                    errorElement.textContent = 'Invalid username or password';
+                    errorElement.classList.add('animate-shake');
+                    
+                    setTimeout(() => {
+                        errorElement.classList.remove('animate-shake');
+                    }, 500);
+                }
+            }
+            
+            // Login button click
+            const loginBtn = document.getElementById('login-btn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function() {
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+                    
+                    if (!username || !password) {
+                        const errorElement = document.getElementById('login-error');
+                        errorElement.textContent = 'Please enter both username and password';
+                        return;
+                    }
+                    
+                    login(username, password);
+                });
+            }
+            
+            // Enter key on password field
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const username = document.getElementById('username').value;
+                        const password = document.getElementById('password').value;
+                        login(username, password);
+                    }
+                });
+            }
+            
+            // Copy demo credentials
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const username = this.getAttribute('data-username');
+                    const password = this.getAttribute('data-password');
+                    
+                    // Fill the login form
+                    document.getElementById('username').value = username;
+                    document.getElementById('password').value = password;
+                    
+                    // Flash the button for feedback
+                    const icon = this.querySelector('i');
+                    icon.className = 'fas fa-check';
+                    
+                    setTimeout(() => {
+                        icon.className = 'fas fa-copy';
+                    }, 1000);
+                });
+            });
+            
+            // Auto-focus username field
+            const usernameInput = document.getElementById('username');
+            if (usernameInput) {
+                usernameInput.focus();
+            }
+            
+            // Check if already logged in
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('user');
+            
+            if (token && user) {
+                try {
+                    const userData = JSON.parse(user);
+                    if (userData.role === 'admin') {
+                        window.location.href = '/dashboard/admin.html';
+                    } else {
+                        window.location.href = '/dashboard/user.html';
+                    }
+                } catch (error) {
+                    console.error('Error parsing user data:', error);
+                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('user');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
