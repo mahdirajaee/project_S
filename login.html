@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Login</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo-placeholder">🔐</div>
+                <h1>Dashboard Login</h1>
+            </div>
+            <div class="login-form">
+                <div class="input-group">
+                    <label for="username">Username or Email</label>
+                    <input type="text" id="username" placeholder="Enter your username or email">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password">
+                </div>
+                <div class="error-message" id="login-error"></div>
+                <button type="button" id="login-btn" class="btn btn-primary btn-block">Login</button>
+                
+                <div class="login-options">
+                    <p class="forgot-password">
+                        <a href="#" id="forgot-password-link">Forgot password?</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Password Reset Modal -->
+        <div class="modal" id="password-reset-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Reset Password</h3>
+                    <button class="close-btn" id="close-reset-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Enter your email address to receive a password reset link.</p>
+                    <div class="input-group">
+                        <label for="reset-email">Email</label>
+                        <input type="email" id="reset-email" placeholder="Enter your email">
+                    </div>
+                    <div class="error-message" id="reset-error"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancel-reset">Cancel</button>
+                    <button class="btn btn-primary" id="send-reset">Send Reset Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (Modular) -->
+    <script type="module">
+        // Import Firebase modules
+        import { auth, db } from './assets/js/firebase-config.js';
+        import { sendPasswordResetEmail } from "firebase/auth";
+        
+        // Make auth and db available globally for other scripts
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        
+        // Handle password reset functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const forgotPasswordLink = document.getElementById('forgot-password-link');
+            const passwordResetModal = document.getElementById('password-reset-modal');
+            const closeResetModal = document.getElementById('close-reset-modal');
+            const cancelReset = document.getElementById('cancel-reset');
+            const sendReset = document.getElementById('send-reset');
+            const resetEmail = document.getElementById('reset-email');
+            const resetError = document.getElementById('reset-error');
+            
+            // Show password reset modal
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Pre-fill email if available
+                    const usernameInput = document.getElementById('username');
+                    if (usernameInput && usernameInput.value && usernameInput.value.includes('@')) {
+                        resetEmail.value = usernameInput.value;
+                    }
+                    
+                    passwordResetModal.classList.add('show');
+                });
+            }
+            
+            // Close modal handlers
+            if (closeResetModal) {
+                closeResetModal.addEventListener('click', function() {
+                    passwordResetModal.classList.remove('show');
+                });
+            }
+            
+            if (cancelReset) {
+                cancelReset.addEventListener('click', function() {
+                    passwordResetModal.classList.remove('show');
+                });
+            }
+            
+            // Send password reset email
+            if (sendReset && resetEmail && auth) {
+                sendReset.addEventListener('click', function() {
+                    const email = resetEmail.value.trim();
+                    
+                    // Clear previous errors
+                    resetError.textContent = '';
+                    
+                    // Validate email
+                    if (!email) {
+                        resetError.textContent = 'Please enter your email address';
+                        return;
+                    }
+                    
+                    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                        resetError.textContent = 'Please enter a valid email address';
+                        return;
+                    }
+                    
+                    // Show loading state
+                    sendReset.disabled = true;
+                    sendReset.textContent = 'Sending...';
+                    
+                    // Send password reset email
+                    sendPasswordResetEmail(auth, email)
+                        .then(function() {
+                            // Password reset email sent successfully
+                            passwordResetModal.classList.remove('show');
+                            
+                            // Show success message
+                            if (window.ui && window.ui.showToast) {
+                                window.ui.showToast('Password reset email sent. Please check your inbox.', 'success');
+                            } else {
+                                alert('Password reset email sent. Please check your inbox.');
+                            }
+                            
+                            // Reset form
+                            resetEmail.value = '';
+                        })
+                        .catch(function(error) {
+                            // Handle errors
+                            console.error('Error sending password reset email:', error);
+                            
+                            if (error.code === 'auth/user-not-found') {
+                                resetError.textContent = 'No account found with this email address';
+                            } else {
+                                resetError.textContent = 'Failed to send reset email: ' + error.message;
+                            }
+                        })
+                        .finally(function() {
+                            // Reset button state
+                            sendReset.disabled = false;
+                            sendReset.textContent = 'Send Reset Link';
+                        });
+                });
+            }
+        });
+    </script>
+    
+    <!-- Regular scripts -->
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script type="module" src="assets/js/auth.js"></script>
+</body>
+</html>

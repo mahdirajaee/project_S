@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-container">
+        <!-- Load the topbar component -->
+        <div id="topbar-container"></div>
+        
+        <div class="dashboard-content">
+            <!-- Load the sidebar component -->
+            <div id="sidebar-container"></div>
+            
+            <div class="main-content">
+                <div class="welcome-section">
+                    <h1>Welcome, <span id="user-name">User</span></h1>
+                    <p>View messages and manage your account.</p>
+                </div>
+
+                <!-- Dashboard Widgets -->
+                <div class="dashboard-widgets">
+                    <div class="widget unread-messages">
+                        <h3>Unread Messages</h3>
+                        <div class="count" id="unread-count">0</div>
+                    </div>
+                    <div class="widget last-login">
+                        <h3>Last Login</h3>
+                        <div class="date" id="last-login-date">Never</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="dashboard-tabs">
+                    <div class="tab-header">
+                        <button class="tab-btn active" data-tab="messages">Messages</button>
+                        <button class="tab-btn" data-tab="profile">My Profile</button>
+                    </div>
+                    
+                    <!-- Messages Tab -->
+                    <div class="tab-content active" id="messages-tab">
+                        <div class="messages-container">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Messages from Admin</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="message-list" id="message-list">
+                                        <!-- Messages will be populated here -->
+                                        <div class="empty-state">
+                                            <p>No messages yet. Check back later!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Tab -->
+                    <div class="tab-content" id="profile-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>My Profile</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="update-profile-form">
+                                    <div class="input-group">
+                                        <label for="username">Username</label>
+                                        <input type="text" id="username" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="email">Email</label>
+                                        <input type="email" id="email" disabled>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="name">Display Name</label>
+                                        <input type="text" id="name">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="current-password">Current Password</label>
+                                        <input type="password" id="current-password">
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="new-password">New Password (leave blank to keep current)</label>
+                                        <input type="password" id="new-password">
+                                    </div>
+                                    <div class="error-message" id="update-profile-error"></div>
+                                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                                </form>
+                                
+                                <div class="telegram-connect-section">
+                                    <h3>Connect to Telegram</h3>
+                                    <p>Receive notifications via Telegram by connecting your account.</p>
+                                    <div class="telegram-instructions">
+                                        <ol>
+                                            <li>Open Telegram and search for "<strong>@YourDashboardBot</strong>"</li>
+                                            <li>Start a chat with the bot</li>
+                                            <li>Type the command: <code>/register your_username your_password</code></li>
+                                        </ol>
+                                    </div>
+                                    <div class="telegram-status">
+                                        <p><strong>Status:</strong> <span id="telegram-connection-status">Not Connected</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules and make them globally available
+        import { auth, db } from '../assets/js/firebase-config.js';
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+    </script>
+
+    <!-- Regular scripts -->
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/ui.js"></script>
+    <script type="module" src="../assets/js/auth.js"></script>
+    <script src="../assets/js/user.js"></script>
+</body>
+</html>

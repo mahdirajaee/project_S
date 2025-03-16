@@ -1,0 +1,73 @@
+<div class="message-panel">
+    <div class="message-panel-header">
+        <h2>Message Center</h2>
+    </div>
+    <div class="message-panel-content">
+        <!-- Admin View -->
+        <div class="admin-message-view" id="admin-message-view">
+            <div class="message-form">
+                <div class="form-header">
+                    <h3>Send Message to Users</h3>
+                </div>
+                <form id="send-message-form">
+                    <div class="input-group">
+                        <label for="message-recipient">Send To</label>
+                        <select id="message-recipient">
+                            <option value="all">All Users</option>
+                            <!-- Individual users will be populated here -->
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="message-subject">Subject</label>
+                        <input type="text" id="message-subject" placeholder="Enter message subject">
+                    </div>
+                    <div class="input-group">
+                        <label for="message-content">Message</label>
+                        <textarea id="message-content" placeholder="Type your message here..." rows="4"></textarea>
+                    </div>
+                    <div class="message-actions">
+                        <button type="button" id="message-preview-btn" class="btn btn-outline">Preview</button>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="message-history">
+                <div class="history-header">
+                    <h3>Message History</h3>
+                </div>
+                <div class="message-list" id="admin-message-list">
+                    <!-- Message history will be populated here -->
+                    <div class="empty-state">
+                        <p>No messages sent yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Message Preview Modal -->
+        <div class="modal" id="preview-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Message Preview</h3>
+                    <button class="close-btn" id="close-preview">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="preview-subject">
+                        <strong>Subject:</strong> <span id="preview-subject"></span>
+                    </div>
+                    <div class="preview-recipient">
+                        <strong>To:</strong> <span id="preview-recipient"></span>
+                    </div>
+                    <div class="preview-content">
+                        <p id="preview-content"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" id="cancel-preview">Cancel</button>
+                    <button class="btn btn-primary" id="confirm-send">Send Message</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

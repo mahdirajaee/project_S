@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+</head>
+<body class="dashboard-page">
+    <div class="dashboard-container">
+        <!-- Load the topbar component -->
+        <div id="topbar-container"></div>
+        
+        <div class="dashboard-content">
+            <!-- Load the sidebar component -->
+            <div id="sidebar-container"></div>
+            
+            <div class="main-content">
+                <div class="welcome-section">
+                    <h1>Welcome, <span id="admin-name">Admin</span></h1>
+                    <p>Manage your users and messages from this dashboard.</p>
+                </div>
+
+                <!-- Dashboard Widgets -->
+                <div class="dashboard-widgets">
+                    <div class="widget user-count">
+                        <h3>Total Users</h3>
+                        <div class="count" id="total-users">0</div>
+                    </div>
+                    <div class="widget messages-count">
+                        <h3>Messages Sent</h3>
+                        <div class="count" id="total-messages">0</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="dashboard-tabs">
+                    <div class="tab-header">
+                        <button class="tab-btn active" data-tab="users">Users</button>
+                        <button class="tab-btn" data-tab="messages">Messages</button>
+                        <button class="tab-btn" data-tab="create-user">Create User</button>
+                        <button class="tab-btn" data-tab="telegram">Telegram Bot</button>
+                    </div>
+                    
+                    <!-- Users Tab -->
+                    <div class="tab-content active" id="users-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>User Management</h2>
+                                <div class="search-container">
+                                    <input type="text" id="search-users" placeholder="Search users...">
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="users-table-body">
+                                        <!-- User rows will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages Tab -->
+                    <div class="tab-content" id="messages-tab">
+                        <!-- Load the message panel component -->
+                        <div id="message-panel-container"></div>
+                    </div>
+                    
+                    <!-- Create User Tab -->
+                    <div class="tab-content" id="create-user-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Create New User</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="create-user-form">
+                                    <div class="input-group">
+                                        <label for="new-username">Username</label>
+                                        <input type="text" id="new-username" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="new-email">Email</label>
+                                        <input type="email" id="new-email" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="new-password">Password</label>
+                                        <input type="password" id="new-password" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="confirm-password">Confirm Password</label>
+                                        <input type="password" id="confirm-password" required>
+                                    </div>
+                                    <div class="error-message" id="create-user-error"></div>
+                                    <button type="submit" class="btn btn-primary">Create User</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Telegram Bot Tab -->
+                    <div class="tab-content" id="telegram-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>Telegram Bot Management</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="bot-status-section">
+                                    <h3>Bot Status</h3>
+                                    <div class="status-indicator">
+                                        <span class="status-dot online" id="bot-status-dot"></span>
+                                        <span class="status-text" id="bot-status-text">Connected</span>
+                                    </div>
+                                    <div class="bot-info">
+                                        <p><strong>Bot Name:</strong> <span id="bot-name">Dashboard Bot</span></p>
+                                        <p><strong>Webhook:</strong> <span id="webhook-url"></span></p>
+                                        <p><strong>Registered Users:</strong> <span id="telegram-users-count">0</span></p>
+                                    </div>
+                                    <div class="bot-actions">
+                                        <button class="btn btn-outline" id="check-webhook-btn">Check Webhook</button>
+                                        <button class="btn btn-primary" id="set-webhook-btn">Set Webhook</button>
+                                    </div>
+                                </div>
+
+                                <div class="telegram-broadcast-section">
+                                    <h3>Broadcast Message</h3>
+                                    <form id="telegram-broadcast-form">
+                                        <div class="input-group">
+                                            <label for="telegram-recipient">Send To</label>
+                                            <select id="telegram-recipient" required>
+                                                <option value="all">All Telegram Users</option>
+                                                <!-- Individual users will be populated here -->
+                                            </select>
+                                        </div>
+                                        <div class="input-group">
+                                            <label for="telegram-message">Message</label>
+                                            <textarea id="telegram-message" placeholder="Type your message here..." rows="4" required></textarea>
+                                        </div>
+                                        <div class="telegram-options">
+                                            <div class="checkbox-group">
+                                                <input type="checkbox" id="telegram-silent" name="telegram-silent">
+                                                <label for="telegram-silent">Send silently (no notification sound)</label>
+                                            </div>
+                                            <div class="checkbox-group">
+                                                <input type="checkbox" id="telegram-preview" name="telegram-preview" checked>
+                                                <label for="telegram-preview">Show link previews</label>
+                                            </div>
+                                        </div>
+                                        <div class="error-message" id="telegram-error"></div>
+                                        <button type="submit" class="btn btn-primary">Send Telegram Message</button>
+                                    </form>
+                                </div>
+
+                                <div class="telegram-users-section">
+                                    <h3>Connected Users</h3>
+                                    <div class="table-container">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Username</th>
+                                                    <th>Telegram Username</th>
+                                                    <th>Chat ID</th>
+                                                    <th>Connected Since</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="telegram-users-table">
+                                                <!-- Telegram users will be populated here -->
+                                                <tr>
+                                                    <td colspan="5" class="text-center">No users connected to Telegram</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules and make them globally available
+        import { auth, db } from '../assets/js/firebase-config.js';
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+    </script>
+
+    <!-- Regular scripts -->
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/ui.js"></script>
+    <script type="module" src="../assets/js/auth.js"></script>
+    <script src="../assets/js/telegram.js"></script>
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>
