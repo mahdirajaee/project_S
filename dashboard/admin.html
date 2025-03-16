@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/animations.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
 </head>
 <body class="dashboard-page">
     <div class="dashboard-container">
@@ -18,55 +20,148 @@
             
             <div class="main-content">
                 <div class="welcome-section">
-                    <h1>Welcome, <span id="admin-name">Admin</span></h1>
-                    <p>Manage your users and messages from this dashboard.</p>
+                    <div class="welcome-content">
+                        <h1>Welcome, <span id="admin-name">Admin</span></h1>
+                        <p>Manage your users and messages from this dashboard.</p>
+                    </div>
+                    <div class="welcome-actions">
+                        <button class="btn btn-outline btn-with-icon" id="theme-toggle">
+                            <i class="fas fa-moon"></i>
+                            <span>Toggle Theme</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Dashboard Widgets -->
                 <div class="dashboard-widgets">
-                    <div class="widget user-count">
-                        <h3>Total Users</h3>
-                        <div class="count" id="total-users">0</div>
+                    <div class="widget">
+                        <div class="widget-icon bg-primary">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="widget-content">
+                            <h3>Total Users</h3>
+                            <div class="widget-data">
+                                <div class="count" id="total-users">0</div>
+                                <div class="trend trend-up">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>12%</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="widget messages-count">
-                        <h3>Messages Sent</h3>
-                        <div class="count" id="total-messages">0</div>
+                    
+                    <div class="widget">
+                        <div class="widget-icon bg-success">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="widget-content">
+                            <h3>Messages Sent</h3>
+                            <div class="widget-data">
+                                <div class="count" id="total-messages">0</div>
+                                <div class="trend trend-up">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>8%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget">
+                        <div class="widget-icon bg-warning">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="widget-content">
+                            <h3>New Users</h3>
+                            <div class="widget-data">
+                                <div class="count" id="new-users">0</div>
+                                <div class="trend trend-up">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>5%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget">
+                        <div class="widget-icon bg-info">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="widget-content">
+                            <h3>Active Users</h3>
+                            <div class="widget-data">
+                                <div class="count" id="active-users">0</div>
+                                <div class="trend trend-up">
+                                    <i class="fas fa-arrow-up"></i>
+                                    <span>15%</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Tabs -->
                 <div class="dashboard-tabs">
                     <div class="tab-header">
-                        <button class="tab-btn active" data-tab="users">Users</button>
-                        <button class="tab-btn" data-tab="messages">Messages</button>
-                        <button class="tab-btn" data-tab="create-user">Create User</button>
-                        <button class="tab-btn" data-tab="telegram">Telegram Bot</button>
+                        <button class="tab-btn active" data-tab="users">
+                            <i class="fas fa-users"></i> 
+                            <span>Users</span>
+                        </button>
+                        <button class="tab-btn" data-tab="messages">
+                            <i class="fas fa-envelope"></i> 
+                            <span>Messages</span>
+                        </button>
+                        <button class="tab-btn" data-tab="create-user">
+                            <i class="fas fa-user-plus"></i> 
+                            <span>Create User</span>
+                        </button>
+                        <button class="tab-btn" data-tab="telegram">
+                            <i class="fab fa-telegram"></i> 
+                            <span>Telegram Bot</span>
+                        </button>
                     </div>
                     
                     <!-- Users Tab -->
                     <div class="tab-content active" id="users-tab">
                         <div class="card">
                             <div class="card-header">
-                                <h2>User Management</h2>
-                                <div class="search-container">
-                                    <input type="text" id="search-users" placeholder="Search users...">
+                                <div class="card-title">
+                                    <i class="fas fa-users"></i> 
+                                    <h2>User Management</h2>
+                                </div>
+                                <div class="card-actions">
+                                    <div class="search-container">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="search-users" placeholder="Search users...">
+                                    </div>
+                                    <button class="btn btn-sm btn-outline btn-with-icon" id="refresh-users">
+                                        <i class="fas fa-sync-alt"></i>
+                                        <span>Refresh</span>
+                                    </button>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <table class="data-table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Username</th>
-                                            <th>Email</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="users-table-body">
-                                        <!-- User rows will be populated here -->
-                                    </tbody>
-                                </table>
+                                <div class="table-responsive">
+                                    <table class="data-table" id="users-table">
+                                        <thead>
+                                            <tr>
+                                                <th width="60">ID</th>
+                                                <th>Username</th>
+                                                <th>Email</th>
+                                                <th width="100">Status</th>
+                                                <th width="160">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="users-table-body">
+                                            <!-- User rows will be populated here -->
+                                            <tr>
+                                                <td colspan="5" class="text-center">
+                                                    <div class="loading-spinner"></div>
+                                                    <p>Loading users...</p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -81,28 +176,71 @@
                     <div class="tab-content" id="create-user-tab">
                         <div class="card">
                             <div class="card-header">
-                                <h2>Create New User</h2>
+                                <div class="card-title">
+                                    <i class="fas fa-user-plus"></i>
+                                    <h2>Create New User</h2>
+                                </div>
                             </div>
                             <div class="card-body">
-                                <form id="create-user-form">
+                                <form id="create-user-form" class="form-grid">
                                     <div class="input-group">
                                         <label for="new-username">Username</label>
-                                        <input type="text" id="new-username" required>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-user"></i>
+                                            <input type="text" id="new-username" required>
+                                        </div>
                                     </div>
                                     <div class="input-group">
                                         <label for="new-email">Email</label>
-                                        <input type="email" id="new-email" required>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-envelope"></i>
+                                            <input type="email" id="new-email" required>
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="new-name">Display Name (Optional)</label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-id-card"></i>
+                                            <input type="text" id="new-name" placeholder="Full name to display">
+                                        </div>
+                                    </div>
+                                    <div class="input-group">
+                                        <label for="new-role">Role</label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-user-tag"></i>
+                                            <select id="new-role">
+                                                <option value="user" selected>User</option>
+                                                <option value="admin">Admin</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="input-group">
                                         <label for="new-password">Password</label>
-                                        <input type="password" id="new-password" required>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-lock"></i>
+                                            <input type="password" id="new-password" required>
+                                            <button type="button" class="toggle-password">
+                                                <i class="fas fa-eye-slash"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="input-group">
                                         <label for="confirm-password">Confirm Password</label>
-                                        <input type="password" id="confirm-password" required>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-lock"></i>
+                                            <input type="password" id="confirm-password" required>
+                                            <button type="button" class="toggle-password">
+                                                <i class="fas fa-eye-slash"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="error-message" id="create-user-error"></div>
-                                    <button type="submit" class="btn btn-primary">Create User</button>
+                                    <div class="form-footer">
+                                        <div class="error-message" id="create-user-error"></div>
+                                        <button type="submit" class="btn btn-primary btn-with-icon">
+                                            <i class="fas fa-user-plus"></i>
+                                            <span>Create User</span>
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -112,75 +250,126 @@
                     <div class="tab-content" id="telegram-tab">
                         <div class="card">
                             <div class="card-header">
-                                <h2>Telegram Bot Management</h2>
+                                <div class="card-title">
+                                    <i class="fab fa-telegram"></i>
+                                    <h2>Telegram Bot Management</h2>
+                                </div>
                             </div>
                             <div class="card-body">
-                                <div class="bot-status-section">
-                                    <h3>Bot Status</h3>
-                                    <div class="status-indicator">
-                                        <span class="status-dot online" id="bot-status-dot"></span>
-                                        <span class="status-text" id="bot-status-text">Connected</span>
-                                    </div>
-                                    <div class="bot-info">
-                                        <p><strong>Bot Name:</strong> <span id="bot-name">Dashboard Bot</span></p>
-                                        <p><strong>Webhook:</strong> <span id="webhook-url"></span></p>
-                                        <p><strong>Registered Users:</strong> <span id="telegram-users-count">0</span></p>
-                                    </div>
-                                    <div class="bot-actions">
-                                        <button class="btn btn-outline" id="check-webhook-btn">Check Webhook</button>
-                                        <button class="btn btn-primary" id="set-webhook-btn">Set Webhook</button>
-                                    </div>
-                                </div>
-
-                                <div class="telegram-broadcast-section">
-                                    <h3>Broadcast Message</h3>
-                                    <form id="telegram-broadcast-form">
-                                        <div class="input-group">
-                                            <label for="telegram-recipient">Send To</label>
-                                            <select id="telegram-recipient" required>
-                                                <option value="all">All Telegram Users</option>
-                                                <!-- Individual users will be populated here -->
-                                            </select>
-                                        </div>
-                                        <div class="input-group">
-                                            <label for="telegram-message">Message</label>
-                                            <textarea id="telegram-message" placeholder="Type your message here..." rows="4" required></textarea>
-                                        </div>
-                                        <div class="telegram-options">
-                                            <div class="checkbox-group">
-                                                <input type="checkbox" id="telegram-silent" name="telegram-silent">
-                                                <label for="telegram-silent">Send silently (no notification sound)</label>
+                                <div class="telegram-content">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="telegram-section">
+                                                <div class="section-header">
+                                                    <i class="fas fa-robot"></i>
+                                                    <h3>Bot Status</h3>
+                                                </div>
+                                                <div class="status-card">
+                                                    <div class="status-indicator">
+                                                        <span class="status-dot online" id="bot-status-dot"></span>
+                                                        <span class="status-text" id="bot-status-text">Connected</span>
+                                                    </div>
+                                                    <div class="bot-info">
+                                                        <div class="bot-info-item">
+                                                            <span class="label">Bot Name:</span>
+                                                            <span class="value" id="bot-name">Dashboard Bot</span>
+                                                        </div>
+                                                        <div class="bot-info-item">
+                                                            <span class="label">Webhook:</span>
+                                                            <span class="value" id="webhook-url">Not Set</span>
+                                                        </div>
+                                                        <div class="bot-info-item">
+                                                            <span class="label">Registered Users:</span>
+                                                            <span class="value" id="telegram-users-count">0</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="bot-actions">
+                                                        <button class="btn btn-outline btn-with-icon" id="check-webhook-btn">
+                                                            <i class="fas fa-sync-alt"></i>
+                                                            <span>Check Webhook</span>
+                                                        </button>
+                                                        <button class="btn btn-primary btn-with-icon" id="set-webhook-btn">
+                                                            <i class="fas fa-link"></i>
+                                                            <span>Set Webhook</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="checkbox-group">
-                                                <input type="checkbox" id="telegram-preview" name="telegram-preview" checked>
-                                                <label for="telegram-preview">Show link previews</label>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="telegram-section">
+                                                <div class="section-header">
+                                                    <i class="fas fa-broadcast-tower"></i>
+                                                    <h3>Broadcast Message</h3>
+                                                </div>
+                                                <form id="telegram-broadcast-form">
+                                                    <div class="input-group">
+                                                        <label for="telegram-recipient">Send To</label>
+                                                        <div class="input-with-icon">
+                                                            <i class="fas fa-users"></i>
+                                                            <select id="telegram-recipient" required>
+                                                                <option value="all">All Telegram Users</option>
+                                                                <!-- Individual users will be populated here -->
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="input-group">
+                                                        <label for="telegram-message">Message</label>
+                                                        <div class="input-with-icon">
+                                                            <i class="fas fa-comment-alt"></i>
+                                                            <textarea id="telegram-message" placeholder="Type your message here..." rows="4" required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="telegram-options">
+                                                        <div class="checkbox-group">
+                                                            <input type="checkbox" id="telegram-silent" name="telegram-silent">
+                                                            <label for="telegram-silent">Send silently (no notification sound)</label>
+                                                        </div>
+                                                        <div class="checkbox-group">
+                                                            <input type="checkbox" id="telegram-preview" name="telegram-preview" checked>
+                                                            <label for="telegram-preview">Show link previews</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="error-message" id="telegram-error"></div>
+                                                    <button type="submit" class="btn btn-primary btn-with-icon">
+                                                        <i class="fas fa-paper-plane"></i>
+                                                        <span>Send Telegram Message</span>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
-                                        <div class="error-message" id="telegram-error"></div>
-                                        <button type="submit" class="btn btn-primary">Send Telegram Message</button>
-                                    </form>
-                                </div>
-
-                                <div class="telegram-users-section">
-                                    <h3>Connected Users</h3>
-                                    <div class="table-container">
-                                        <table class="data-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Username</th>
-                                                    <th>Telegram Username</th>
-                                                    <th>Chat ID</th>
-                                                    <th>Connected Since</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="telegram-users-table">
-                                                <!-- Telegram users will be populated here -->
-                                                <tr>
-                                                    <td colspan="5" class="text-center">No users connected to Telegram</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                    </div>
+                                    
+                                    <div class="telegram-section mt-4">
+                                        <div class="section-header">
+                                            <i class="fas fa-users"></i>
+                                            <h3>Connected Users</h3>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="data-table" id="telegram-users-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Username</th>
+                                                        <th>Telegram Username</th>
+                                                        <th>Chat ID</th>
+                                                        <th>Connected Since</th>
+                                                        <th width="100">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="telegram-users-body">
+                                                    <!-- Telegram users will be populated here -->
+                                                    <tr>
+                                                        <td colspan="5" class="text-center">
+                                                            <div class="empty-state">
+                                                                <i class="fab fa-telegram"></i>
+                                                                <p>No users connected to Telegram</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -191,18 +380,75 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Import Firebase modules and make them globally available
-        import { auth, db } from '../assets/js/firebase-config.js';
-        window.firebaseAuth = auth;
-        window.firebaseDb = db;
-    </script>
+    <!-- User Edit Modal -->
+    <div class="modal" id="edit-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-edit"></i> Edit User</h3>
+                <button class="close-btn" id="close-edit-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-user-form" class="form-grid">
+                    <input type="hidden" id="edit-user-id">
+                    <div class="input-group">
+                        <label for="edit-username">Username</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="edit-username" disabled>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="edit-email">Email</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="edit-email" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="edit-name">Display Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-id-card"></i>
+                            <input type="text" id="edit-name">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="edit-status">Status</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-toggle-on"></i>
+                            <select id="edit-status">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="edit-password">New Password (leave blank to keep current)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="edit-password">
+                            <button type="button" class="toggle-password">
+                                <i class="fas fa-eye-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="error-message" id="edit-user-error"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-edit">Cancel</button>
+                <button class="btn btn-primary" id="save-edit">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container"></div>
 
     <!-- Regular scripts -->
     <script src="../assets/js/utils.js"></script>
     <script src="../assets/js/ui.js"></script>
-    <script type="module" src="../assets/js/auth.js"></script>
+    <script src="../assets/js/auth.js"></script>
     <script src="../assets/js/telegram.js"></script>
     <script src="../assets/js/admin.js"></script>
 </body>

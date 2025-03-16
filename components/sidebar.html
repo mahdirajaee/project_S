@@ -1,61 +1,64 @@
 <div class="sidebar">
     <div class="sidebar-header">
         <h3>Navigation</h3>
+        <button class="toggle-btn" id="collapse-sidebar" aria-label="Collapse Sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
     </div>
     <div class="sidebar-content">
         <ul class="nav-menu">
             <!-- Admin-specific menu items -->
-            <div class="admin-menu" id="admin-menu">
+            <div class="admin-menu" id="admin-menu" style="display: none;">
                 <li class="nav-item">
-                    <a href="admin.html" class="nav-link">
-                        <span class="nav-icon dashboard-icon"></span>
+                    <a href="admin.html" class="nav-link" title="Dashboard">
+                        <i class="fas fa-th-large"></i>
                         <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-tab="users">
-                        <span class="nav-icon users-icon"></span>
+                    <a href="#" class="nav-link" data-tab="users" title="Users">
+                        <i class="fas fa-users"></i>
                         <span class="nav-text">Users</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-tab="messages">
-                        <span class="nav-icon messages-icon"></span>
+                    <a href="#" class="nav-link" data-tab="messages" title="Messages">
+                        <i class="fas fa-envelope"></i>
                         <span class="nav-text">Messages</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-tab="create-user">
-                        <span class="nav-icon add-user-icon"></span>
+                    <a href="#" class="nav-link" data-tab="create-user" title="Create User">
+                        <i class="fas fa-user-plus"></i>
                         <span class="nav-text">Create User</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-tab="telegram">
-                        <span class="nav-icon telegram-icon"></span>
+                    <a href="#" class="nav-link" data-tab="telegram" title="Telegram Bot">
+                        <i class="fab fa-telegram"></i>
                         <span class="nav-text">Telegram Bot</span>
                     </a>
                 </li>
             </div>
             
             <!-- User-specific menu items -->
-            <div class="user-menu" id="user-nav-menu">
+            <div class="user-menu" id="user-nav-menu" style="display: none;">
                 <li class="nav-item">
-                    <a href="user.html" class="nav-link">
-                        <span class="nav-icon dashboard-icon"></span>
+                    <a href="user.html" class="nav-link" title="Dashboard">
+                        <i class="fas fa-th-large"></i>
                         <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-tab="messages">
-                        <span class="nav-icon messages-icon"></span>
+                    <a href="#" class="nav-link" data-tab="messages" title="Messages">
+                        <i class="fas fa-envelope"></i>
                         <span class="nav-text">Messages</span>
                         <span class="badge" id="sidebar-messages-count">0</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-tab="profile">
-                        <span class="nav-icon profile-icon"></span>
+                    <a href="#" class="nav-link" data-tab="profile" title="My Profile">
+                        <i class="fas fa-user-circle"></i>
                         <span class="nav-text">My Profile</span>
                     </a>
                 </li>
@@ -64,8 +67,14 @@
             <!-- Common menu items -->
             <li class="nav-divider"></li>
             <li class="nav-item">
-                <a href="#" class="nav-link" id="sidebar-logout">
-                    <span class="nav-icon logout-icon"></span>
+                <a href="#" class="nav-link" id="help-link" title="Help & Support">
+                    <i class="fas fa-question-circle"></i>
+                    <span class="nav-text">Help & Support</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" id="sidebar-logout" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
                     <span class="nav-text">Logout</span>
                 </a>
             </li>

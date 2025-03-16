@@ -22,23 +22,16 @@ class AdminDashboard {
         // Load components
         this.loadComponents();
         
-        // Update admin name in the welcome message
-        this.updateAdminInfo();
-        
-        // Load users table
-        this.loadUsers();
-        
-        // Initialize message panel
-        this.initMessagePanel();
+        // Set up responsive sidebar
+        this.setupSidebar();
         
         // Setup tab navigation
         this.setupTabs();
         
-        // Setup create user form
-        this.setupCreateUserForm();
+        // Initialize toggle password buttons
+        this.initTogglePassword();
         
-        // Initialize Telegram bot section
-        this.initTelegramSection();
+        console.log('Admin Dashboard initialized');
     }
     
     /**
@@ -67,7 +60,7 @@ class AdminDashboard {
                 .then(html => {
                     sidebarContainer.innerHTML = html;
                     
-                    // Hide user menu items and show admin menu items
+                    // Show admin menu items and hide user menu items
                     const adminMenu = document.getElementById('admin-menu');
                     const userMenu = document.getElementById('user-nav-menu');
                     
@@ -99,6 +92,27 @@ class AdminDashboard {
      * Initialize topbar functionality
      */
     initTopbar() {
+        // Set user initial and info
+        const userInitial = document.getElementById('user-initial');
+        const displayName = document.getElementById('display-name');
+        const displayRole = document.getElementById('display-role');
+        
+        if (auth.currentUser) {
+            if (userInitial) {
+                userInitial.textContent = auth.currentUser.name 
+                    ? auth.currentUser.name.charAt(0).toUpperCase() 
+                    : auth.currentUser.username.charAt(0).toUpperCase();
+            }
+            
+            if (displayName) {
+                displayName.textContent = auth.currentUser.name || auth.currentUser.username;
+            }
+            
+            if (displayRole) {
+                displayRole.textContent = auth.currentUser.role.charAt(0).toUpperCase() + auth.currentUser.role.slice(1);
+            }
+        }
+        
         // Toggle sidebar on mobile
         const toggleBtn = document.getElementById('toggle-sidebar');
         const sidebar = document.querySelector('.sidebar');
@@ -110,16 +124,7 @@ class AdminDashboard {
             });
         }
         
-        // Set user initial and name
-        const userInitial = document.getElementById('user-initial');
-        const displayName = document.getElementById('display-name');
-        
-        if (userInitial && displayName && auth.currentUser) {
-            userInitial.textContent = auth.currentUser.name.charAt(0);
-            displayName.textContent = auth.currentUser.name;
-        }
-        
-        // Toggle user dropdown
+        // Handle user dropdown
         const userMenuBtn = document.getElementById('user-menu-btn');
         const userDropdown = document.getElementById('user-dropdown');
         
@@ -127,14 +132,30 @@ class AdminDashboard {
             userMenuBtn.addEventListener('click', () => {
                 userDropdown.classList.toggle('show');
             });
-            
-            // Close the dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!userMenuBtn.contains(e.target) && !userDropdown.contains(e.target)) {
-                    userDropdown.classList.remove('show');
+        }
+        
+        // Handle profile link
+        const profileLink = document.getElementById('profile-link');
+        if (profileLink) {
+            profileLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tabId = profileLink.getAttribute('data-tab');
+                if (tabId) {
+                    this.showTab(tabId);
+                    // Close dropdown
+                    if (userDropdown) userDropdown.classList.remove('show');
                 }
             });
         }
+        
+        // Update admin name in the welcome message
+        this.updateAdminInfo();
+        
+        // Load users table
+        this.loadUsers();
+        
+        // Initialize data counters
+        this.initDashboardCounters();
     }
     
     /**
@@ -157,6 +178,52 @@ class AdminDashboard {
                 }
             });
         });
+        
+        // Handle sidebar collapse
+        const collapseSidebarBtn = document.getElementById('collapse-sidebar');
+        const sidebar = document.querySelector('.sidebar');
+        
+        if (collapseSidebarBtn && sidebar) {
+            collapseSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('sidebar-collapsed');
+                
+                // Update button icon
+                const icon = collapseSidebarBtn.querySelector('i');
+                if (icon) {
+                    icon.classList.toggle('fa-chevron-left');
+                    icon.classList.toggle('fa-chevron-right');
+                }
+                
+                // Adjust main content margin
+                const mainContent = document.querySelector('.main-content');
+                if (mainContent) {
+                    mainContent.style.marginLeft = sidebar.classList.contains('sidebar-collapsed') 
+                        ? '70px' 
+                        : '';
+                }
+            });
+        }
+    }
+    
+    /**
+     * Setup responsive sidebar
+     */
+    setupSidebar() {
+        // Add responsive classes to body when sidebar is open on mobile
+        document.addEventListener('click', (e) => {
+            // Close when clicking outside sidebar
+            if (window.innerWidth < 992) {
+                const sidebar = document.querySelector('.sidebar');
+                const toggleBtn = document.getElementById('toggle-sidebar');
+                
+                if (sidebar && sidebar.classList.contains('show') && 
+                    !sidebar.contains(e.target) && 
+                    !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('show');
+                    document.body.classList.remove('sidebar-open');
+                }
+            }
+        });
     }
     
     /**
@@ -166,7 +233,75 @@ class AdminDashboard {
         const adminName = document.getElementById('admin-name');
         
         if (adminName && auth.currentUser) {
-            adminName.textContent = auth.currentUser.name;
+            adminName.textContent = auth.currentUser.name || auth.currentUser.username;
+        }
+    }
+    
+    /**
+     * Initialize dashboard counters
+     */
+    initDashboardCounters() {
+        this.updateUserCounts();
+        this.updateMessageCounts();
+    }
+    
+    /**
+     * Update user counts in dashboard widgets
+     */
+    updateUserCounts() {
+        // Get users
+        auth.getUsers()
+            .then(users => {
+                // Total users
+                const totalUsersElement = document.getElementById('total-users');
+                if (totalUsersElement) {
+                    // Exclude admin users from count
+                    const regularUsers = users.filter(user => user.role === 'user');
+                    totalUsersElement.textContent = regularUsers.length;
+                }
+                
+                // New users (added in the last 30 days)
+                const newUsersElement = document.getElementById('new-users');
+                if (newUsersElement) {
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    
+                    const newUsers = users.filter(user => {
+                        const createdDate = new Date(user.createdAt);
+                        return createdDate > thirtyDaysAgo && user.role === 'user';
+                    });
+                    
+                    newUsersElement.textContent = newUsers.length;
+                }
+                
+                // Active users
+                const activeUsersElement = document.getElementById('active-users');
+                if (activeUsersElement) {
+                    const activeUsers = users.filter(user => user.status === 'active' && user.role === 'user');
+                    activeUsersElement.textContent = activeUsers.length;
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load user counts:', error);
+            });
+    }
+    
+    /**
+     * Update message counts in dashboard widgets
+     */
+    updateMessageCounts() {
+        // Get messages from localStorage
+        const messagesStr = localStorage.getItem('messages') || '[]';
+        let messages = JSON.parse(messagesStr);
+        
+        // Filter messages sent by current admin
+        const adminMessages = messages.filter(message => 
+            message.sender === auth.currentUser.id);
+        
+        // Update messages count
+        const totalMessagesElement = document.getElementById('total-messages');
+        if (totalMessagesElement) {
+            totalMessagesElement.textContent = adminMessages.length;
         }
     }
     
@@ -185,7 +320,8 @@ class AdminDashboard {
         tableBody.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center">
-                    <div class="spinner"></div>
+                    <div class="loading-spinner"></div>
+                    <p>Loading users...</p>
                 </td>
             </tr>
         `;
@@ -193,34 +329,36 @@ class AdminDashboard {
         // Get users from auth module
         auth.getUsers()
             .then(users => {
-                // Update total users count
-                const totalUsersElement = document.getElementById('total-users');
-                if (totalUsersElement) {
-                    totalUsersElement.textContent = users.length;
-                }
-                
                 // Clear table again
                 tableBody.innerHTML = '';
                 
                 // Add users to table
                 users.forEach(user => {
                     const row = document.createElement('tr');
+                    
+                    // Determine badge class based on status
+                    let badgeClass = 'badge-success';
+                    if (user.status === 'inactive') badgeClass = 'badge-secondary';
+                    if (user.status === 'suspended') badgeClass = 'badge-danger';
+                    
                     row.innerHTML = `
                         <td>${user.id}</td>
                         <td>${user.username}</td>
                         <td>${user.email}</td>
                         <td>
-                            <span class="badge ${user.status === 'active' ? 'bg-success' : 'bg-secondary'}">
+                            <span class="badge-sm ${badgeClass}">
                                 ${user.status || 'active'}
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-sm btn-outline" data-user-id="${user.id}" data-action="edit">
-                                Edit
-                            </button>
-                            <button class="btn btn-sm btn-danger" data-user-id="${user.id}" data-action="delete">
-                                Delete
-                            </button>
+                            <div class="action-btns">
+                                <button class="action-btn edit" data-user-id="${user.id}" data-action="edit" aria-label="Edit user">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete" data-user-id="${user.id}" data-action="delete" aria-label="Delete user">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </td>
                     `;
                     tableBody.appendChild(row);
@@ -228,13 +366,33 @@ class AdminDashboard {
                 
                 // Add event listeners to action buttons
                 this.setupUserActions();
+                
+                // Show no users message if none found
+                if (users.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                <div class="empty-state">
+                                    <i class="fas fa-users"></i>
+                                    <p>No users found</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                // Update dashboard counters
+                this.updateUserCounts();
             })
             .catch(error => {
                 console.error('Failed to load users:', error);
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="text-center text-danger">
-                            Failed to load users: ${error}
+                        <td colspan="5" class="text-center">
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Failed to load users: ${error.message || error}</p>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -245,70 +403,222 @@ class AdminDashboard {
      * Setup user action buttons (edit, delete)
      */
     setupUserActions() {
-        const actionButtons = document.querySelectorAll('button[data-action]');
+        const editButtons = document.querySelectorAll('button[data-action="edit"]');
+        const deleteButtons = document.querySelectorAll('button[data-action="delete"]');
         
-        actionButtons.forEach(button => {
-            button.addEventListener('click', () => {
+        // Add edit event listeners
+        editButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
                 const userId = button.getAttribute('data-user-id');
-                const action = button.getAttribute('data-action');
-                
-                if (action === 'edit') {
-                    this.editUser(userId);
-                } else if (action === 'delete') {
-                    this.deleteUser(userId);
-                }
+                this.editUser(userId);
             });
         });
+        
+        // Add delete event listeners
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const userId = button.getAttribute('data-user-id');
+                this.deleteUser(userId);
+            });
+        });
+        
+        // Add refresh button event listener
+        const refreshBtn = document.getElementById('refresh-users');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.loadUsers();
+            });
+        }
     }
     
     /**
-     * Edit user (placeholder)
+     * Edit user
      */
-    editUser(userId) {
-        alert(`Edit user ${userId} functionality would go here`);
-        // In a real app, this would open a modal or redirect to an edit form
+    async editUser(userId) {
+        // Get user data
+        const users = await auth.getUsers();
+        const user = users.find(u => u.id == userId);
+        
+        if (!user) {
+            window.ui.showToast('User not found', 'error');
+            return;
+        }
+        
+        // Populate modal with user data
+        const editUserModal = document.getElementById('edit-user-modal');
+        const editForm = document.getElementById('edit-user-form');
+        
+        if (editUserModal && editForm) {
+            const idField = document.getElementById('edit-user-id');
+            const usernameField = document.getElementById('edit-username');
+            const emailField = document.getElementById('edit-email');
+            const nameField = document.getElementById('edit-name');
+            const statusField = document.getElementById('edit-status');
+            const passwordField = document.getElementById('edit-password');
+            
+            if (idField) idField.value = user.id;
+            if (usernameField) usernameField.value = user.username;
+            if (emailField) emailField.value = user.email;
+            if (nameField) nameField.value = user.name || '';
+            if (statusField) statusField.value = user.status || 'active';
+            if (passwordField) passwordField.value = '';
+            
+            // Show modal
+            editUserModal.classList.add('show');
+            
+            // Handle save button
+            const saveBtn = document.getElementById('save-edit');
+            if (saveBtn) {
+                saveBtn.onclick = () => this.saveUserEdit();
+            }
+            
+            // Handle cancel and close buttons
+            const cancelBtn = document.getElementById('cancel-edit');
+            const closeBtn = document.getElementById('close-edit-modal');
+            
+            if (cancelBtn) {
+                cancelBtn.onclick = () => {
+                    editUserModal.classList.remove('show');
+                };
+            }
+            
+            if (closeBtn) {
+                closeBtn.onclick = () => {
+                    editUserModal.classList.remove('show');
+                };
+            }
+            
+            // Handle click outside to close
+            editUserModal.onclick = (e) => {
+                if (e.target === editUserModal) {
+                    editUserModal.classList.remove('show');
+                }
+            };
+        }
+    }
+    
+    /**
+     * Save user edit
+     */
+    async saveUserEdit() {
+        const editUserModal = document.getElementById('edit-user-modal');
+        const errorMessage = document.getElementById('edit-user-error');
+        
+        // Get form data
+        const userId = document.getElementById('edit-user-id').value;
+        const email = document.getElementById('edit-email').value;
+        const name = document.getElementById('edit-name').value;
+        const status = document.getElementById('edit-status').value;
+        const password = document.getElementById('edit-password').value;
+        
+        // Validate email
+        if (!email || !email.includes('@')) {
+            errorMessage.textContent = 'Please enter a valid email address';
+            return;
+        }
+        
+        // Create update data
+        const userData = {
+            email,
+            name,
+            status
+        };
+        
+        // Add password if provided
+        if (password) {
+            userData.password = password;
+        }
+        
+        try {
+            // Get users
+            const users = await auth.getUsers();
+            const userIndex = users.findIndex(u => u.id == userId);
+            
+            if (userIndex === -1) {
+                errorMessage.textContent = 'User not found';
+                return;
+            }
+            
+            // Update user
+            const updatedUser = {
+                ...users[userIndex],
+                ...userData
+            };
+            
+            users[userIndex] = updatedUser;
+            
+            // Save back to localStorage
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // If updating the current user, update auth state
+            if (auth.currentUser.id == userId) {
+                auth.currentUser = updatedUser;
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+            }
+            
+            // Close modal
+            editUserModal.classList.remove('show');
+            
+            // Show success message
+            window.ui.showToast('User updated successfully', 'success');
+            
+            // Refresh users table
+            this.loadUsers();
+            
+        } catch (error) {
+            errorMessage.textContent = error.message || 'Failed to update user';
+            console.error('Failed to update user:', error);
+        }
     }
     
     /**
      * Delete user from the system
      */
-    deleteUser(userId) {
-        if (confirm('Are you sure you want to delete this user?')) {
-            // Get users from localStorage
-            const usersStr = localStorage.getItem('users') || '[]';
-            let users = JSON.parse(usersStr);
+    async deleteUser(userId) {
+        // Get user info for confirmation message
+        const users = await auth.getUsers();
+        const user = users.find(u => u.id == userId);
+        
+        if (!user) {
+            window.ui.showToast('User not found', 'error');
+            return;
+        }
+        
+        // Don't allow deleting the admin user
+        if (user.role === 'admin') {
+            window.ui.showToast('Cannot delete the admin user', 'error');
+            return;
+        }
+        
+        // Confirm deletion
+        const confirmed = await window.ui.showConfirmDialog({
+            title: 'Delete User',
+            message: `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`,
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            type: 'danger'
+        });
+        
+        if (!confirmed) return;
+        
+        try {
+            // Delete user
+            await auth.deleteUser(userId);
             
-            // Find user index
-            const userIndex = users.findIndex(user => user.id == userId);
-            
-            if (userIndex === -1) {
-                alert('User not found.');
-                return;
-            }
-            
-            // Don't allow deleting the admin user
-            if (users[userIndex].role === 'admin') {
-                alert('Cannot delete the admin user.');
-                return;
-            }
-            
-            // Get username for reference
-            const username = users[userIndex].username;
-            
-            // Remove user from array
-            users.splice(userIndex, 1);
-            
-            // Save updated users list back to localStorage
-            localStorage.setItem('users', JSON.stringify(users));
-            
-            // Also clean up related data (messages, Telegram associations)
-            this.cleanupUserData(userId, username);
+            // Clean up related data
+            this.cleanupUserData(userId, user.username);
             
             // Show success message
-            ui.showToast(`User ${username} has been deleted successfully.`, 'success');
+            window.ui.showToast(`User ${user.username} has been deleted successfully`, 'success');
             
             // Refresh users table
             this.loadUsers();
+            
+        } catch (error) {
+            window.ui.showToast(`Failed to delete user: ${error.message || error}`, 'error');
+            console.error('Failed to delete user:', error);
         }
     }
     
@@ -383,6 +693,14 @@ class AdminDashboard {
         
         // Load message history
         this.loadMessageHistory();
+        
+        // Handle refresh button
+        const refreshBtn = document.getElementById('refresh-message-history');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.loadMessageHistory();
+            });
+        }
     }
     
     /**
@@ -393,11 +711,19 @@ class AdminDashboard {
         
         if (!recipientSelect) return;
         
-        // Add "All Users" option
-        const allOption = document.createElement('option');
-        allOption.value = 'all';
-        allOption.textContent = 'All Users';
-        recipientSelect.appendChild(allOption);
+        // Clear dropdown first (keep the "All Users" option)
+        const allOption = recipientSelect.querySelector('option[value="all"]');
+        recipientSelect.innerHTML = '';
+        
+        if (allOption) {
+            recipientSelect.appendChild(allOption);
+        } else {
+            // Add "All Users" option if it doesn't exist
+            const newAllOption = document.createElement('option');
+            newAllOption.value = 'all';
+            newAllOption.textContent = 'All Users';
+            recipientSelect.appendChild(newAllOption);
+        }
         
         // Get users from auth module
         auth.getUsers()
@@ -437,12 +763,12 @@ class AdminDashboard {
         
         // Validate inputs
         if (!subjectInput.value.trim()) {
-            alert('Please enter a subject');
+            window.ui.showToast('Please enter a subject', 'error');
             return;
         }
         
         if (!contentTextarea.value.trim()) {
-            alert('Please enter a message');
+            window.ui.showToast('Please enter a message', 'error');
             return;
         }
         
@@ -497,10 +823,7 @@ class AdminDashboard {
         localStorage.setItem('messages', JSON.stringify(messages));
         
         // Update message count
-        const totalMessagesElement = document.getElementById('total-messages');
-        if (totalMessagesElement) {
-            totalMessagesElement.textContent = messages.length;
-        }
+        this.updateMessageCounts();
         
         // Update message history
         this.loadMessageHistory();
@@ -510,7 +833,12 @@ class AdminDashboard {
         contentTextarea.value = '';
         
         // Show success message
-        alert('Message sent successfully!');
+        window.ui.showToast('Message sent successfully!', 'success');
+        
+        // Trigger event for telegram notification
+        document.dispatchEvent(new CustomEvent('message_sent', {
+            detail: message
+        }));
     }
     
     /**
@@ -524,6 +852,14 @@ class AdminDashboard {
         // Clear list
         messageList.innerHTML = '';
         
+        // Show loading state
+        messageList.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Loading messages...</p>
+            </div>
+        `;
+        
         // Get messages from localStorage
         const messagesStr = localStorage.getItem('messages') || '[]';
         let messages = JSON.parse(messagesStr);
@@ -535,46 +871,50 @@ class AdminDashboard {
         const adminMessages = messages.filter(message => message.sender === auth.currentUser.id);
         
         // Update total messages count
-        const totalMessagesElement = document.getElementById('total-messages');
-        if (totalMessagesElement) {
-            totalMessagesElement.textContent = adminMessages.length;
-        }
+        this.updateMessageCounts();
         
-        // Show empty state if no messages
-        if (adminMessages.length === 0) {
-            messageList.innerHTML = `
-                <div class="empty-state">
-                    <p>No messages sent yet.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        // Add messages to list
-        adminMessages.forEach(message => {
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message-item';
+        // Delay to simulate loading
+        setTimeout(() => {
+            // Clear loading state
+            messageList.innerHTML = '';
             
-            // Format date
-            const date = new Date(message.timestamp);
-            const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            // Show empty state if no messages
+            if (adminMessages.length === 0) {
+                messageList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-envelope-open"></i>
+                        <p>No messages sent yet.</p>
+                    </div>
+                `;
+                return;
+            }
             
-            // Recipient display
-            const recipientDisplay = message.recipient === 'all' 
-                ? 'All Users' 
-                : `User ID: ${message.recipient}`;
-            
-            messageElement.innerHTML = `
-                <div class="message-meta">
-                    <div class="message-subject">${message.subject}</div>
-                    <div class="message-date">${formattedDate}</div>
-                </div>
-                <div class="message-recipient">To: ${recipientDisplay}</div>
-                <div class="message-body">${message.content}</div>
-            `;
-            
-            messageList.appendChild(messageElement);
-        });
+            // Add messages to list
+            adminMessages.forEach(message => {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'message-item';
+                
+                // Format date
+                const date = new Date(message.timestamp);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                
+                // Recipient display
+                const recipientDisplay = message.recipient === 'all' 
+                    ? 'All Users' 
+                    : `User ID: ${message.recipient}`;
+                
+                messageElement.innerHTML = `
+                    <div class="message-meta">
+                        <div class="message-subject">${message.subject}</div>
+                        <div class="message-date">${formattedDate}</div>
+                    </div>
+                    <div class="message-sender">To: ${recipientDisplay}</div>
+                    <div class="message-body">${message.content}</div>
+                `;
+                
+                messageList.appendChild(messageElement);
+            });
+        }, 500);
     }
     
     /**
@@ -589,12 +929,22 @@ class AdminDashboard {
                 this.showTab(tabId);
             });
         });
+        
+        // Handle hash in URL for direct tab access
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+            const tabId = hash;
+            this.showTab(tabId);
+        }
     }
     
     /**
      * Show a specific tab
      */
     showTab(tabId) {
+        // Update URL hash
+        window.location.hash = tabId;
+        
         // Hide all tabs and deactivate buttons
         const tabContents = document.querySelectorAll('.tab-content');
         const tabButtons = document.querySelectorAll('.tab-btn');
@@ -614,6 +964,10 @@ class AdminDashboard {
             this.loadUsers();
         } else if (tabId === 'messages') {
             this.loadMessageHistory();
+        } else if (tabId === 'create-user') {
+            this.setupCreateUserForm();
+        } else if (tabId === 'telegram') {
+            this.initTelegramSection();
         }
     }
     
@@ -629,29 +983,56 @@ class AdminDashboard {
                 
                 const username = document.getElementById('new-username').value;
                 const email = document.getElementById('new-email').value;
+                const name = document.getElementById('new-name').value;
+                const role = document.getElementById('new-role').value;
                 const password = document.getElementById('new-password').value;
                 const confirmPassword = document.getElementById('confirm-password').value;
                 const errorElement = document.getElementById('create-user-error');
                 
+                // Clear previous error
+                if (errorElement) errorElement.textContent = '';
+                
+                // Validate inputs
+                if (!username || !email || !password) {
+                    if (errorElement) errorElement.textContent = 'Username, email and password are required';
+                    return;
+                }
+                
+                // Validate email format
+                if (!email.includes('@')) {
+                    if (errorElement) errorElement.textContent = 'Please enter a valid email address';
+                    return;
+                }
+                
                 // Validate passwords match
                 if (password !== confirmPassword) {
-                    errorElement.textContent = 'Passwords do not match';
+                    if (errorElement) errorElement.textContent = 'Passwords do not match';
                     return;
+                }
+                
+                // Show loading state on button
+                const submitButton = createUserForm.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    window.ui.showLoading(submitButton);
                 }
                 
                 // Register new user
                 auth.register({
                     username,
                     email,
+                    name,
+                    role,
                     password
                 })
                 .then(user => {
+                    // Hide loading state
+                    if (submitButton) window.ui.hideLoading(submitButton);
+                    
                     // Show success message
-                    alert(`User ${username} created successfully`);
+                    window.ui.showToast(`User ${username} created successfully`, 'success');
                     
                     // Clear form
                     createUserForm.reset();
-                    errorElement.textContent = '';
                     
                     // Refresh users list
                     this.loadUsers();
@@ -660,8 +1041,237 @@ class AdminDashboard {
                     this.showTab('users');
                 })
                 .catch(error => {
-                    errorElement.textContent = error;
+                    // Hide loading state
+                    if (submitButton) window.ui.hideLoading(submitButton);
+                    
+                    // Show error
+                    if (errorElement) errorElement.textContent = error;
+                    window.ui.showToast(`Failed to create user: ${error}`, 'error');
                 });
+            });
+        }
+    }
+    
+    /**
+     * Initialize toggle password functionality
+     */
+    initTogglePassword() {
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const passwordInput = this.closest('.input-with-icon').querySelector('input');
+                const icon = this.querySelector('i');
+                
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            });
+        });
+    }
+    
+    /**
+     * Initialize Telegram bot section
+     */
+    initTelegramSection() {
+        // Update webhook URL display
+        const webhookUrlElement = document.getElementById('webhook-url');
+        if (webhookUrlElement) {
+            webhookUrlElement.textContent = `${window.location.origin}/webhook.php`;
+        }
+        
+        // Setup check webhook button
+        const checkWebhookBtn = document.getElementById('check-webhook-btn');
+        if (checkWebhookBtn) {
+            checkWebhookBtn.addEventListener('click', () => {
+                // Show loading state
+                window.ui.showLoading(checkWebhookBtn);
+                
+                // Simulate checking webhook
+                setTimeout(() => {
+                    // Hide loading state
+                    window.ui.hideLoading(checkWebhookBtn);
+                    
+                    // Show result
+                    window.ui.showToast('Webhook is active and properly configured', 'success');
+                }, 1500);
+            });
+        }
+        
+        // Setup set webhook button
+        const setWebhookBtn = document.getElementById('set-webhook-btn');
+        if (setWebhookBtn) {
+            setWebhookBtn.addEventListener('click', () => {
+                // Show loading state
+                window.ui.showLoading(setWebhookBtn);
+                
+                // Simulate setting webhook
+                setTimeout(() => {
+                    // Hide loading state
+                    window.ui.hideLoading(setWebhookBtn);
+                    
+                    // Show result
+                    window.ui.showToast('Webhook has been set successfully', 'success');
+                }, 1500);
+            });
+        }
+        
+        // Load Telegram users
+        this.loadTelegramUsers();
+        
+        // Setup broadcast form
+        this.setupTelegramBroadcast();
+    }
+    
+    /**
+     * Load Telegram connected users
+     */
+    loadTelegramUsers() {
+        const tableBody = document.getElementById('telegram-users-body');
+        
+        if (!tableBody) return;
+        
+        // For demonstration purposes, create some sample Telegram connections
+        const telegramUsers = [
+            {
+                username: 'user',
+                telegramUsername: '@userDemo',
+                chatId: '123456789',
+                connectedSince: '2023-12-25T12:00:00.000Z'
+            },
+            {
+                username: 'johndoe',
+                telegramUsername: '@john_doe',
+                chatId: '987654321',
+                connectedSince: '2024-01-15T14:30:00.000Z'
+            }
+        ];
+        
+        // Clear table
+        tableBody.innerHTML = '';
+        
+        // Update counter
+        const countElement = document.getElementById('telegram-users-count');
+        if (countElement) {
+            countElement.textContent = telegramUsers.length;
+        }
+        
+        // Show empty state if no users
+        if (telegramUsers.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center">
+                        <div class="empty-state">
+                            <i class="fab fa-telegram"></i>
+                            <p>No users connected to Telegram</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Add users to table
+        telegramUsers.forEach(user => {
+            const row = document.createElement('tr');
+            
+            // Format date
+            const date = new Date(user.connectedSince);
+            const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            
+            row.innerHTML = `
+                <td>${user.username}</td>
+                <td>${user.telegramUsername}</td>
+                <td>${user.chatId}</td>
+                <td>${formattedDate}</td>
+                <td>
+                    <div class="action-btns">
+                        <button class="action-btn delete" data-username="${user.username}" aria-label="Disconnect user">
+                            <i class="fas fa-unlink"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+        
+        // Add event listeners to disconnect buttons
+        const disconnectButtons = tableBody.querySelectorAll('.action-btn.delete');
+        disconnectButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const username = button.getAttribute('data-username');
+                this.disconnectTelegramUser(username);
+            });
+        });
+    }
+    
+    /**
+     * Disconnect a Telegram user
+     */
+    async disconnectTelegramUser(username) {
+        // Confirm disconnection
+        const confirmed = await window.ui.showConfirmDialog({
+            title: 'Disconnect User',
+            message: `Are you sure you want to disconnect user "${username}" from Telegram?`,
+            confirmText: 'Disconnect',
+            cancelText: 'Cancel',
+            type: 'warning'
+        });
+        
+        if (!confirmed) return;
+        
+        // Simulate disconnection
+        localStorage.removeItem(`telegram_chat_id_${username}`);
+        
+        // Show success message
+        window.ui.showToast(`User ${username} has been disconnected from Telegram`, 'success');
+        
+        // Refresh Telegram users
+        this.loadTelegramUsers();
+    }
+    
+    /**
+     * Setup Telegram broadcast form
+     */
+    setupTelegramBroadcast() {
+        const broadcastForm = document.getElementById('telegram-broadcast-form');
+        
+        if (broadcastForm) {
+            broadcastForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const recipient = document.getElementById('telegram-recipient').value;
+                const message = document.getElementById('telegram-message').value;
+                const silent = document.getElementById('telegram-silent').checked;
+                const preview = document.getElementById('telegram-preview').checked;
+                
+                // Validate message
+                if (!message.trim()) {
+                    window.ui.showToast('Please enter a message', 'error');
+                    return;
+                }
+                
+                // Show loading state
+                const submitButton = broadcastForm.querySelector('button[type="submit"]');
+                if (submitButton) window.ui.showLoading(submitButton);
+                
+                // Simulate sending message
+                setTimeout(() => {
+                    // Hide loading state
+                    if (submitButton) window.ui.hideLoading(submitButton);
+                    
+                    // Show success message
+                    window.ui.showToast('Telegram message sent successfully', 'success');
+                    
+                    // Clear form
+                    document.getElementById('telegram-message').value = '';
+                }, 1500);
             });
         }
     }

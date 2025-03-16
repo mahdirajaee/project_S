@@ -6,12 +6,12 @@
 
 class TelegramBot {
     constructor() {
-        // Bot configuration
+        // Bot configuration (in a real app, this would be stored securely)
         this.botToken = 'YOUR_TELEGRAM_BOT_TOKEN'; // Replace with your actual bot token
         this.apiUrl = `https://api.telegram.org/bot${this.botToken}`;
         this.webhookUrl = `${window.location.origin}/webhook.php`; // Webhook endpoint
         
-        // Initialize bot if needed
+        // Initialize bot
         this.init();
     }
     
@@ -39,34 +39,36 @@ class TelegramBot {
      * Check if webhook is already set
      * In a real application, this would be done server-side
      */
-    checkWebhook() {
+    async checkWebhook() {
         // Simulate API call
         console.log(`Checking webhook: ${this.webhookUrl}`);
         
-        // This is just for demonstration
-        // In a real app, you would make an API call to:
-        // GET https://api.telegram.org/bot<token>/getWebhookInfo
-        
-        // If the webhook is not set, set it:
-        // this.setWebhook();
+        // Simulate result for demonstration purposes
+        return {
+            ok: true,
+            result: {
+                url: this.webhookUrl,
+                has_custom_certificate: false,
+                pending_update_count: 0,
+                max_connections: 40
+            }
+        };
     }
     
     /**
      * Set webhook for the bot
      * In a real application, this would be done server-side
      */
-    setWebhook() {
+    async setWebhook() {
         // This is just for demonstration
         console.log(`Setting webhook to: ${this.webhookUrl}`);
         
-        // In a real app, you would make an API call to:
-        // POST https://api.telegram.org/bot<token>/setWebhook
-        // with form data: url=<webhookUrl>
-        
-        // For security, in a production environment:
-        // 1. Use a server-side script to set up the webhook
-        // 2. Use HTTPS for your webhook URL
-        // 3. Consider using a secret token in the webhook URL
+        // Simulate success response
+        return {
+            ok: true,
+            result: true,
+            description: "Webhook was set"
+        };
     }
     
     /**
@@ -75,7 +77,7 @@ class TelegramBot {
      * @param {string} text - Message text
      * @param {Object} options - Additional options
      */
-    sendMessage(chatId, text, options = {}) {
+    async sendMessage(chatId, text, options = {}) {
         // This is a simulation for demonstration purposes
         console.log(`Sending Telegram message to chat ${chatId}:`, text);
         
@@ -91,33 +93,91 @@ class TelegramBot {
             reply_to_message_id: options.replyTo || null
         };
         
-        // Using fetch to make the API call
-        return fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
             console.log('Message sent successfully:', result);
             return result;
-        })
-        .catch(error => {
+        } catch (error) {
             console.error('Error sending message:', error);
             throw error;
-        });
+        }
         */
         
         // Simulate successful sending
-        return Promise.resolve({
+        return {
             ok: true,
             result: {
                 message_id: Date.now(),
-                date: Math.floor(Date.now() / 1000)
+                from: {
+                    id: 123456789,
+                    is_bot: true,
+                    first_name: "DashboardBot",
+                    username: "YourDashboardBot"
+                },
+                chat: {
+                    id: chatId,
+                    type: "private"
+                },
+                date: Math.floor(Date.now() / 1000),
+                text: text
             }
-        });
+        };
+    }
+    
+    /**
+     * Broadcast a message to multiple users
+     * @param {Array|string} recipients - Array of chat IDs or 'all' for all connected users
+     * @param {string} text - Message text
+     * @param {Object} options - Additional options
+     */
+    async broadcastMessage(recipients, text, options = {}) {
+        // Get all connected Telegram users
+        let chatIds = [];
+        
+        if (recipients === 'all') {
+            // Find all connected users
+            const usersStr = localStorage.getItem('users') || '[]';
+            const users = JSON.parse(usersStr);
+            
+            // For each user, get the Telegram chat ID if exists
+            users.forEach(user => {
+                const chatId = localStorage.getItem(`telegram_chat_id_${user.username}`);
+                if (chatId) chatIds.push(chatId);
+            });
+        } else if (Array.isArray(recipients)) {
+            chatIds = recipients;
+        } else {
+            // Single recipient
+            chatIds = [recipients];
+        }
+        
+        // Send to each chat ID
+        const results = [];
+        
+        for (const chatId of chatIds) {
+            try {
+                const result = await this.sendMessage(chatId, text, options);
+                results.push(result);
+            } catch (error) {
+                console.error(`Error sending to chat ID ${chatId}:`, error);
+                results.push({ ok: false, error });
+            }
+        }
+        
+        return {
+            total: chatIds.length,
+            successful: results.filter(r => r.ok).length,
+            failed: results.filter(r => !r.ok).length,
+            results
+        };
     }
     
     /**
@@ -150,15 +210,41 @@ Created: <code>${new Date().toLocaleString()}</code>
     notifyUserNewMessage(messageData) {
         // In a real app, you would get the user's Telegram chat ID from a database
         // Here we'll simulate using localStorage
-        const userChatId = localStorage.getItem(`telegram_chat_id_${messageData.recipient}`) || '987654321';
         
-        // Only send if specific user (not 'all')
+        // If message is for all users
         if (messageData.recipient === 'all') {
-            // For 'all', we would send to each user individually in a real app
-            console.log('Notification for all users would be sent individually');
-            return;
+            // Get all users
+            const usersStr = localStorage.getItem('users') || '[]';
+            const users = JSON.parse(usersStr);
+            
+            // Send to each user who has a Telegram connection
+            users.forEach(user => {
+                if (user.role !== 'admin') { // Don't send to admin users
+                    const chatId = localStorage.getItem(`telegram_chat_id_${user.username}`);
+                    if (chatId) {
+                        this.sendUserMessage(chatId, messageData);
+                    }
+                }
+            });
+        } else {
+            // Find specific user
+            const usersStr = localStorage.getItem('users') || '[]';
+            const users = JSON.parse(usersStr);
+            const user = users.find(u => u.id.toString() === messageData.recipient);
+            
+            if (user) {
+                const chatId = localStorage.getItem(`telegram_chat_id_${user.username}`);
+                if (chatId) {
+                    this.sendUserMessage(chatId, messageData);
+                }
+            }
         }
-        
+    }
+    
+    /**
+     * Send a message notification to a specific user
+     */
+    sendUserMessage(chatId, messageData) {
         // Format message
         const message = `
 📬 <b>New Message</b>
@@ -172,7 +258,7 @@ ${messageData.content}
         `;
         
         // Send notification
-        this.sendMessage(userChatId, message, {
+        this.sendMessage(chatId, message, {
             parseMode: 'HTML'
         });
     }
@@ -188,6 +274,9 @@ ${messageData.content}
         localStorage.setItem(`telegram_chat_id_${username}`, chatId);
         
         console.log(`Registered user ${username} with Telegram chat ID ${chatId}`);
+        
+        // Store the connection timestamp
+        localStorage.setItem(`telegram_connected_since_${username}`, new Date().toISOString());
         
         // Send confirmation message
         this.sendMessage(chatId, `✅ You are now registered for notifications from the Dashboard.`);
@@ -205,6 +294,7 @@ ${messageData.content}
         
         // In a real app, you would remove this from a database
         localStorage.removeItem(`telegram_chat_id_${username}`);
+        localStorage.removeItem(`telegram_connected_since_${username}`);
         
         console.log(`Unregistered user ${username} from Telegram notifications`);
         
@@ -304,21 +394,14 @@ Type /help for more commands.
         }
         
         // In a real app, you would use proper password verification
-        // For demo purposes, we'll check against the stored password (or the hardcoded ones)
-        const isValidPassword = (user.password === password) || 
-                               (username === 'admin' && password === 'admin123') || 
-                               (username === 'user' && password === 'user123');
-        
-        if (!isValidPassword) {
+        // For demo purposes, we'll check against the stored password
+        if (user.password !== password) {
             this.sendMessage(chatId, '❌ Invalid password. Please try again.');
             return;
         }
         
         // Register the user
         this.registerUser(username, chatId);
-        
-        // Store registration timestamp
-        localStorage.setItem(`telegram_connected_since_${username}`, new Date().toISOString());
     }
     
     /**
@@ -348,6 +431,9 @@ Type /help for more commands.
         
         // Unregister the user
         this.unregisterUser(foundUsername);
+        
+        // Confirm unregistration
+        this.sendMessage(chatId, '✅ You have been successfully unregistered from receiving notifications.');
     }
     
     /**
@@ -368,6 +454,34 @@ Type /help for more commands.
         this.sendMessage(chatId, message, {
             parseMode: 'HTML'
         });
+    }
+    
+    /**
+     * Get all registered Telegram users
+     * @returns {Array} Array of registered users with their Telegram info
+     */
+    getRegisteredUsers() {
+        // In a real app, this would come from a database
+        const usersStr = localStorage.getItem('users') || '[]';
+        const users = JSON.parse(usersStr);
+        
+        const registeredUsers = [];
+        
+        users.forEach(user => {
+            const chatId = localStorage.getItem(`telegram_chat_id_${user.username}`);
+            const connectedSince = localStorage.getItem(`telegram_connected_since_${user.username}`);
+            
+            if (chatId) {
+                registeredUsers.push({
+                    username: user.username,
+                    telegramUsername: `@${user.username}Demo`, // In a real app this would come from Telegram
+                    chatId,
+                    connectedSince: connectedSince || new Date().toISOString()
+                });
+            }
+        });
+        
+        return registeredUsers;
     }
 }
 
